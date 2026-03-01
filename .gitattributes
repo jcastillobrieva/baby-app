@@ -1,0 +1,29 @@
+# Force LF line endings for all text files (critical for Windows/Mac workflow)
+* text=auto eol=lf
+
+# Swift source files
+*.swift text eol=lf
+
+# TypeScript/JavaScript (Edge Functions)
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+
+# SQL migrations
+*.sql text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# Config
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
