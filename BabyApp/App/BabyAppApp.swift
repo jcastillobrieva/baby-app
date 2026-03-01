@@ -8,6 +8,9 @@ struct BabyAppApp: App {
         WindowGroup {
             ContentView()
                 .environment(appState)
+                .task {
+                    await appState.restoreSession()
+                }
         }
     }
 }

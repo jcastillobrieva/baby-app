@@ -45,8 +45,7 @@ struct SignUpView: View {
                     Task {
                         await viewModel.signUp()
                         if viewModel.isAuthenticated {
-                            appState.isAuthenticated = true
-                            dismiss()
+                            await appState.restoreSession()
                         }
                     }
                 } label: {

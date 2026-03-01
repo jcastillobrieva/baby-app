@@ -5,11 +5,14 @@ import Foundation
 final class AppState {
     // MARK: - Auth State
     var isAuthenticated = false
+    var isLoading = true
     var currentUserId: UUID?
     var currentFamilyId: UUID?
+    var currentFamily: Family?
 
     // MARK: - Baby State
     var currentBaby: Baby?
+    var needsOnboarding = false // true when authenticated but no baby exists
 
     // MARK: - UI State
     var selectedTab = 0
@@ -19,8 +22,96 @@ final class AppState {
     var activeSleepSession: SleepSession?
     var activeBreastfeedingSession: FeedingLog?
 
+    private let authService = AuthService()
+    private let supabase = SupabaseService.shared.client
+
     init() {
         updateNightMode()
+    }
+
+    // MARK: - Session Restore
+
+    /// Called on app launch to restore session and load family/baby data.
+    func restoreSession() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        await authService.restoreSession()
+
+        guard let user = authService.currentUser else {
+            isAuthenticated = false
+            return
+        }
+
+        currentUserId = user.id
+        isAuthenticated = true
+
+        await loadFamilyAndBaby()
+    }
+
+    /// After authentication, load the user's family and baby.
+    func loadFamilyAndBaby() async {
+        guard let userId = currentUserId else { return }
+
+        do {
+            // Get family membership
+            let members: [FamilyMember] = try await supabase
+                .from("family_members")
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+                .value
+
+            guard let membership = members.first else {
+                needsOnboarding = true
+                return
+            }
+
+            currentFamilyId = membership.familyId
+
+            // Load family
+            let family: Family = try await supabase
+                .from("families")
+                .select()
+                .eq("id", value: membership.familyId.uuidString)
+                .single()
+                .execute()
+                .value
+
+            currentFamily = family
+
+            // Load baby (first baby in family)
+            let babies: [Baby] = try await supabase
+                .from("babies")
+                .select()
+                .eq("family_id", value: membership.familyId.uuidString)
+                .order("created_at")
+                .limit(1)
+                .execute()
+                .value
+
+            if let baby = babies.first {
+                currentBaby = baby
+                needsOnboarding = false
+            } else {
+                needsOnboarding = true
+            }
+        } catch {
+            // Session is valid but data load failed — still show authenticated state
+            needsOnboarding = true
+        }
+    }
+
+    // MARK: - Sign Out
+
+    func signOut() async {
+        try? await authService.signOut()
+        isAuthenticated = false
+        currentUserId = nil
+        currentFamilyId = nil
+        currentFamily = nil
+        currentBaby = nil
+        needsOnboarding = false
     }
 
     // MARK: - Night Mode

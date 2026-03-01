@@ -52,7 +52,7 @@ struct LoginView: View {
                         Task {
                             await viewModel.signIn()
                             if viewModel.isAuthenticated {
-                                appState.isAuthenticated = true
+                                await appState.restoreSession()
                             }
                         }
                     } label: {

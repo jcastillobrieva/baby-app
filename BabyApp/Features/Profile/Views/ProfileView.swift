@@ -88,10 +88,7 @@ struct ProfileView: View {
                 // Account
                 Section {
                     Button("Cerrar sesión", role: .destructive) {
-                        Task {
-                            await viewModel.signOut()
-                            appState.isAuthenticated = false
-                        }
+                        Task { await appState.signOut() }
                     }
                 }
             }
