@@ -5,6 +5,7 @@ import Supabase
 final class ProfileViewModel {
     var familyMembers: [FamilyMember] = []
     var showInvite = false
+    var showEditBaby = false
 
     private let supabase = SupabaseService.shared.client
     private let authService = AuthService()

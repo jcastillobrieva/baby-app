@@ -46,6 +46,10 @@ struct ProfileView: View {
                                 Text("\(String(format: "%.1f", height)) cm")
                             }
                         }
+
+                        Button("Editar datos del bebé") {
+                            viewModel.showEditBaby = true
+                        }
                     }
                 }
 
@@ -98,6 +102,11 @@ struct ProfileView: View {
             }
             .sheet(isPresented: $viewModel.showInvite) {
                 InviteView(familyId: appState.currentFamilyId)
+            }
+            .sheet(isPresented: $viewModel.showEditBaby) {
+                if let baby = appState.currentBaby {
+                    EditBabyView(baby: baby)
+                }
             }
         }
     }
