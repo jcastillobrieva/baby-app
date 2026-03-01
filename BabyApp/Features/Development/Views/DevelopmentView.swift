@@ -56,17 +56,30 @@ struct DevelopmentView: View {
                         }
                     }
 
-                    // Growth Chart Placeholder
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Curva de crecimiento")
-                            .font(.title2)
-                            .fontWeight(.bold)
-
-                        Text("Gráficas OMS próximamente")
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, minHeight: 200)
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    // Growth Chart
+                    NavigationLink {
+                        GrowthChartView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                            VStack(alignment: .leading) {
+                                Text("Curva de crecimiento")
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text("Peso, talla y perímetro cefálico")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: .black.opacity(0.05), radius: 8)
                     }
                 }
                 .padding()

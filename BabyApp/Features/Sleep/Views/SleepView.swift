@@ -3,6 +3,7 @@ import SwiftUI
 struct SleepView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = SleepViewModel()
+    @State private var showBedtimeRoutine = false
 
     var body: some View {
         ScrollView {
@@ -13,6 +14,22 @@ struct SleepView: View {
                 } else {
                     StartSleepCard(viewModel: viewModel)
                 }
+
+                // Bedtime Routine Button
+                Button {
+                    showBedtimeRoutine = true
+                } label: {
+                    HStack {
+                        Image(systemName: "checklist")
+                        Text("Rutina de dormir")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .foregroundStyle(.primary)
 
                 // Today's Sleep
                 VStack(alignment: .leading, spacing: 12) {
@@ -32,23 +49,31 @@ struct SleepView: View {
                     }
                 }
 
-                // Weekly Chart Placeholder
+                // Weekly Chart
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Esta semana")
                         .font(.title3)
                         .fontWeight(.bold)
 
-                    Text("Gráfica de horas de sueño próximamente")
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, minHeight: 200)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    if viewModel.weeklyData.isEmpty {
+                        Text("Sin datos suficientes para la gráfica")
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, minHeight: 200)
+                            .background(Color(.systemGray6))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        SleepChartView(dailySleepData: viewModel.weeklyData)
+                    }
                 }
             }
             .padding()
         }
         .task {
             await viewModel.loadSessions(babyId: appState.currentBaby?.id)
+            await viewModel.loadWeeklyData(babyId: appState.currentBaby?.id)
+        }
+        .sheet(isPresented: $showBedtimeRoutine) {
+            BedtimeRoutineView(sleepSessionId: viewModel.isTracking ? nil : nil)
         }
     }
 }

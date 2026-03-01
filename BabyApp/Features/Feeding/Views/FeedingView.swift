@@ -26,6 +26,24 @@ struct FeedingView: View {
                     SolidFoodInputCard(viewModel: viewModel)
                 }
 
+                // Food Catalog Link
+                NavigationLink {
+                    FoodCatalogView()
+                } label: {
+                    HStack {
+                        Image(systemName: "list.bullet.clipboard")
+                            .foregroundStyle(.green)
+                        Text("Catálogo de alimentos")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .foregroundStyle(.primary)
+
                 // Today's Log
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Hoy")

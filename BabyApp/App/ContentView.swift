@@ -103,43 +103,62 @@ struct OnboardingView: View {
 struct MainTabView: View {
     @Environment(AppState.self) private var appState
     @State private var selectedTab = 0
+    @State private var showNightOverlay = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            DashboardView()
-                .tabItem {
-                    Label("Inicio", systemImage: "house.fill")
-                }
-                .tag(0)
+        ZStack {
+            TabView(selection: $selectedTab) {
+                DashboardView()
+                    .tabItem {
+                        Label("Inicio", systemImage: "house.fill")
+                    }
+                    .tag(0)
 
-            TrackingView()
-                .tabItem {
-                    Label("Registro", systemImage: "chart.bar.fill")
-                }
-                .tag(1)
+                TrackingView()
+                    .tabItem {
+                        Label("Registro", systemImage: "chart.bar.fill")
+                    }
+                    .tag(1)
 
-            AIChatView()
-                .tabItem {
-                    Label("IA", systemImage: "brain.head.profile")
-                }
-                .tag(2)
+                AIChatView()
+                    .tabItem {
+                        Label("IA", systemImage: "brain.head.profile")
+                    }
+                    .tag(2)
 
-            DevelopmentView()
-                .tabItem {
-                    Label("Desarrollo", systemImage: "figure.child")
-                }
-                .tag(3)
+                DevelopmentView()
+                    .tabItem {
+                        Label("Desarrollo", systemImage: "figure.child")
+                    }
+                    .tag(3)
 
-            ProfileView()
-                .tabItem {
-                    Label("Perfil", systemImage: "person.crop.circle")
+                ProfileView()
+                    .tabItem {
+                        Label("Perfil", systemImage: "person.crop.circle")
+                    }
+                    .tag(4)
+            }
+            .modifier(NightModeModifier(isNightMode: appState.isNightMode))
+
+            // Night mode fullscreen overlay
+            if showNightOverlay {
+                NightModeOverlay {
+                    showNightOverlay = false
+                    appState.isNightMode = false
                 }
-                .tag(4)
+                .transition(.opacity)
+            }
         }
-        .modifier(NightModeModifier(isNightMode: appState.isNightMode))
+        .animation(.easeInOut(duration: 0.5), value: showNightOverlay)
+        .onChange(of: appState.isNightMode) { _, isNight in
+            if isNight { showNightOverlay = true }
+        }
         .task {
-            // Request notification permission on first launch
             _ = await NotificationService.shared.requestPermission()
+            // Show night overlay on initial launch if night mode
+            if appState.isNightMode {
+                showNightOverlay = true
+            }
         }
     }
 }
